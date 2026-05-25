@@ -976,6 +976,184 @@
             background-clip: text;
         }
 
+        /* ===== VIEW SWITCHER ===== */
+        .view-switcher {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+        .view-btn {
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .view-btn:hover { color: var(--text-secondary); }
+        .view-btn.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-light);
+        }
+
+        /* ===== GRID VIEW (Tiles) ===== */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .book-tile {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease forwards;
+            cursor: pointer;
+        }
+        .book-tile:hover {
+            border-color: var(--border-glass-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .book-tile .book-cover {
+            width: 100%;
+            height: 220px;
+            margin-bottom: 12px;
+        }
+        .book-tile .book-cover img,
+        .book-tile .book-cover .cover-fallback {
+            border-radius: var(--radius-md);
+        }
+        .book-tile .book-title {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .book-tile .book-author {
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+        .book-tile .book-meta-row {
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .book-tile .book-meta-item {
+            font-size: 0.75rem;
+        }
+        .book-tile .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 3px 8px;
+            font-size: 0.65rem;
+        }
+        .book-tile .book-actions {
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .book-tile:hover .book-actions {
+            opacity: 1;
+        }
+
+        /* ===== COMPACT VIEW ===== */
+        .books-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .book-compact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            transition: var(--transition);
+            animation: fadeIn 0.3s ease forwards;
+        }
+        .book-compact:hover {
+            border-color: var(--border-glass-hover);
+            background: var(--bg-glass-hover);
+        }
+        .book-compact .book-cover {
+            width: 48px;
+            height: 64px;
+            flex-shrink: 0;
+        }
+        .book-compact .book-cover img,
+        .book-compact .book-cover .cover-fallback {
+            border-radius: var(--radius-sm);
+            font-size: 1.2rem;
+        }
+        .book-compact .book-info {
+            flex: 1;
+            margin-left: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+        .book-compact .book-title {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            flex: 1;
+        }
+        .book-compact .book-author {
+            font-size: 0.8rem;
+            margin-bottom: 0;
+            color: var(--text-muted);
+        }
+        .book-compact .book-meta-row {
+            margin-bottom: 0;
+            gap: 12px;
+        }
+        .book-compact .status-badge {
+            position: static;
+            padding: 2px 8px;
+            font-size: 0.65rem;
+        }
+        .book-compact .book-actions {
+            margin-top: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .book-compact:hover .book-actions {
+            opacity: 1;
+        }
+
+        /* Genre badge */
+        .genre-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-glass);
+        }
+
+        /* Book type icon */
+        .type-icon {
+            font-size: 0.9rem;
+        }
+
         .section { display: none; }
         .section.active { display: block; }
     </style>
@@ -1025,6 +1203,13 @@
                     </div>
                 </div>
                 <div class="nav-group">
+                    <div class="nav-label">Фильтры</div>
+                    <div class="nav-item" data-tab="genre-filter" onclick="showGenreFilter()">
+                        <span class="nav-icon">🏷️</span>
+                        <span class="nav-text">По жанрам</span>
+                    </div>
+                </div>
+                <div class="nav-group">
                     <div class="nav-label">Аналитика</div>
                     <div class="nav-item" data-tab="stats" onclick="switchTab('stats')">
                         <span class="nav-icon">📊</span>
@@ -1059,6 +1244,11 @@
                         <div class="search-wrapper">
                             <span class="search-icon">🔍</span>
                             <input type="text" class="search-input" id="searchInput" placeholder="Поиск книг..." oninput="renderBooks()">
+                        </div>
+                        <div class="view-switcher" id="viewSwitcher">
+                            <button class="view-btn active" data-view="list" onclick="switchView('list')" title="Список">☰</button>
+                            <button class="view-btn" data-view="grid" onclick="switchView('grid')" title="Плитка">⊞</button>
+                            <button class="view-btn" data-view="compact" onclick="switchView('compact')" title="Компактный">≡</button>
                         </div>
                         <button class="btn btn-primary" onclick="openModal()">
                             <span>+</span> Добавить книгу
@@ -1172,6 +1362,44 @@
                         <div class="form-group">
                             <label>ISBN</label>
                             <input type="text" id="isbn" placeholder="978-3-16-148410-0" onblur="loadCoverFromISBN()">
+                        </div>
+                        <div class="form-group">
+                            <label>Жанр</label>
+                            <select id="genre">
+                                <option value="">Выберите жанр</option>
+                                <option value="fiction">Художественная проза</option>
+                                <option value="fantasy">Фэнтези</option>
+                                <option value="scifi">Научная фантастика</option>
+                                <option value="mystery">Детектив / Триллер</option>
+                                <option value="romance">Романтика</option>
+                                <option value="horror">Ужасы</option>
+                                <option value="classic">Классика</option>
+                                <option value="nonfiction">Нон-фикшн</option>
+                                <option value="biography">Биография / Мемуары</option>
+                                <option value="history">История</option>
+                                <option value="science">Наука / Популярная наука</option>
+                                <option value="philosophy">Философия</option>
+                                <option value="psychology">Психология</option>
+                                <option value="business">Бизнес / Саморазвитие</option>
+                                <option value="poetry">Поэзия</option>
+                                <option value="children">Детская литература</option>
+                                <option value="comics">Комиксы / Манга</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Тип книги</label>
+                            <select id="bookType" onchange="toggleBookType()">
+                                <option value="paper">📖 Бумажная</option>
+                                <option value="ebook">📱 Электронная</option>
+                                <option value="audio">🎧 Аудиокнига</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label id="lengthLabel">Количество страниц</label>
+                            <input type="number" id="pages" min="1" placeholder="Например: 320">
                         </div>
                     </div>
                     <div class="form-group">
@@ -1306,6 +1534,71 @@ function switchTab(tab) {
     else { document.getElementById('section-all').classList.add('active'); renderBooks(); }
 }
 
+function switchView(view) {
+    localStorage.setItem('readingDiary_view', view);
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
+    renderBooks();
+}
+
+function toggleBookType() {
+    const type = document.getElementById('bookType').value;
+    const label = document.getElementById('lengthLabel');
+    const input = document.getElementById('pages');
+    if (type === 'audio') {
+        label.textContent = 'Длительность (часы)';
+        input.placeholder = 'Например: 8.5';
+    } else {
+        label.textContent = 'Количество страниц';
+        input.placeholder = 'Например: 320';
+    }
+}
+
+function showGenreFilter() {
+    const genres = {};
+    books.forEach(b => { if (b.genre) genres[b.genre] = (genres[b.genre] || 0) + 1; });
+    const genreLabels = {
+        fiction: 'Художественная', fantasy: 'Фэнтези', scifi: 'Sci-Fi', mystery: 'Детектив',
+        romance: 'Романтика', horror: 'Ужасы', classic: 'Классика', nonfiction: 'Нон-фикшн',
+        biography: 'Биография', history: 'История', science: 'Наука', philosophy: 'Философия',
+        psychology: 'Психология', business: 'Бизнес', poetry: 'Поэзия', children: 'Детская',
+        comics: 'Комиксы', other: 'Другое'
+    };
+
+    let message = 'Выберите жанр для фильтрации:
+
+';
+    Object.entries(genres).sort((a, b) => b[1] - a[1]).forEach(([genre, count]) => {
+        message += `${genreLabels[genre] || genre}: ${count} книг\n`;
+    });
+    message += '\nВведите название жанра (или оставьте пустым для сброса):';
+
+    const selected = prompt(message);
+    if (selected === null) return;
+    if (selected === '') {
+        document.getElementById('searchInput').value = '';
+        renderBooks();
+        return;
+    }
+
+    // Find matching genre key
+    const match = Object.keys(genreLabels).find(k => genreLabels[k].toLowerCase() === selected.toLowerCase()) || selected;
+    document.getElementById('searchInput').value = '';
+
+    // Filter by genre
+    const container = document.getElementById('booksList');
+    const view = localStorage.getItem('readingDiary_view') || 'list';
+    const filtered = books.filter(b => b.genre === match);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏷️</div><div class="empty-title">Нет книг в жанре "${genreLabels[match] || match}"</div></div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map((book, i) => createBookCard(book, i)).join('');
+    document.getElementById('pageTitle').textContent = genreLabels[match] || match;
+    document.getElementById('pageSubtitle').textContent = `${filtered.length} ${filtered.length === 1 ? 'книга' : filtered.length < 5 ? 'книги' : 'книг'}`;
+}
+
 function renderBooks() {
     const container = document.getElementById('booksList');
     const search = document.getElementById('searchInput').value.toLowerCase();
@@ -1322,12 +1615,29 @@ function renderBooks() {
 }
 
 function createBookCard(book, index) {
+    const view = localStorage.getItem('readingDiary_view') || 'list';
     const statusConfig = { reading: { label: 'Читаю', class: 'status-reading' }, finished: { label: 'Прочитано', class: 'status-finished' }, want: { label: 'Хочу', class: 'status-want' }, dropped: { label: 'Брошено', class: 'status-dropped' } };
     const status = statusConfig[book.status] || statusConfig.want;
     const stars = '★'.repeat(book.rating || 0) + '☆'.repeat(5 - (book.rating || 0));
     const days = calculateDays(book.startDate, book.endDate);
     const characters = book.characters || [];
     const quotes = book.quotes ? book.quotes.split(';').filter(q => q.trim()).slice(0, 2) : [];
+
+    // Genre label
+    const genreLabels = {
+        fiction: 'Художественная', fantasy: 'Фэнтези', scifi: 'Sci-Fi', mystery: 'Детектив',
+        romance: 'Романтика', horror: 'Ужасы', classic: 'Классика', nonfiction: 'Нон-фикшн',
+        biography: 'Биография', history: 'История', science: 'Наука', philosophy: 'Философия',
+        psychology: 'Психология', business: 'Бизнес', poetry: 'Поэзия', children: 'Детская',
+        comics: 'Комиксы', other: 'Другое'
+    };
+    const genreLabel = book.genre ? genreLabels[book.genre] || book.genre : '';
+
+    // Book type
+    const typeIcons = { paper: '📖', ebook: '📱', audio: '🎧' };
+    const typeIcon = typeIcons[book.bookType] || '📖';
+    const lengthLabel = book.bookType === 'audio' ? 'ч.' : 'стр.';
+    const lengthValue = book.pages || '?';
 
     // Cover image
     let coverHtml = '';
@@ -1339,21 +1649,45 @@ function createBookCard(book, index) {
         coverHtml = `<div class="cover-fallback"><span>${book.title ? book.title[0].toUpperCase() : '📖'}</span></div>`;
     }
 
+    // Progress
     let progressHtml = '';
     if (book.status === 'reading' && book.startDate) {
         const elapsed = Math.ceil((new Date() - new Date(book.startDate)) / (1000*60*60*24));
-        progressHtml = `<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div><div class="progress-text">Читаю ${elapsed} дней · ${book.pages || '?'} стр.</div></div>`;
+        progressHtml = `<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div><div class="progress-text">Читаю ${elapsed} дней · ${lengthValue} ${lengthLabel}</div></div>`;
     } else if (book.status === 'finished' && days > 0) {
-        progressHtml = `<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div><div class="progress-text">Прочитано за ${days} дней · ${book.pages || '?'} стр.</div></div>`;
+        progressHtml = `<div class="book-progress"><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div><div class="progress-text">${book.bookType === 'audio' ? 'Прослушано' : 'Прочитано'} за ${days} дней · ${lengthValue} ${lengthLabel}</div></div>`;
     }
-    return `<div class="book-card" style="animation-delay:${index * 0.05}s"><div class="book-cover">${coverHtml}</div><div class="book-info"><div><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div style="flex:1;"><div class="book-title">${escapeHtml(book.title)}</div><div class="book-author">${escapeHtml(book.author)}${book.publisher ? ` · ${escapeHtml(book.publisher)}` : ''}</div></div><span class="status-badge ${status.class}">${status.label}</span></div><div class="book-meta-row">${book.pages ? `<span class="book-meta-item">📄 ${book.pages} стр.</span>` : ''}${book.rating ? `<span class="book-meta-item"><span class="book-rating">${stars.split('').map(s => `<span class="star ${s === '★' ? '' : 'empty'}">${s}</span>`).join('')}</span></span>` : ''}${days > 0 ? `<span class="book-meta-item">📅 ${days} дн.</span>` : ''}</div>${characters.length > 0 ? `<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;"><strong style="color:var(--accent-light);">Герои:</strong> ${characters.map(c => `${escapeHtml(c.name)} ${c.rating ? '★'.repeat(c.rating) : ''}`).join(', ')}</div>` : ''}${book.review ? `<div style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(book.review)}</div>` : ''}${quotes.length > 0 ? `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${quotes.map(q => `<span style="background:var(--bg-tertiary); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:var(--text-muted); font-style:italic;">${escapeHtml(q.trim().substring(0, 40))}${q.trim().length > 40 ? '...' : ''}</span>`).join('')}</div>` : ''}</div>${progressHtml}<div class="book-actions"><button onclick="editBook('${book.id}')">✏️ Редактировать</button><button onclick="deleteBook('${book.id}')">🗑️ Удалить</button></div></div></div>`;
+
+    // Render based on view
+    if (view === 'grid') {
+        return createTileView(book, index, coverHtml, status, genreLabel, typeIcon, lengthValue, lengthLabel);
+    } else if (view === 'compact') {
+        return createCompactView(book, index, coverHtml, status, genreLabel, typeIcon, lengthValue, lengthLabel);
+    } else {
+        return createListView(book, index, coverHtml, status, stars, days, characters, quotes, genreLabel, typeIcon, lengthValue, lengthLabel, progressHtml);
+    }
+}
+
+function createListView(book, index, coverHtml, status, stars, days, characters, quotes, genreLabel, typeIcon, lengthValue, lengthLabel, progressHtml) {
+    return `<div class="book-card" style="animation-delay:${index * 0.05}s"><div class="book-cover">${coverHtml}</div><div class="book-info"><div><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div style="flex:1;"><div class="book-title">${escapeHtml(book.title)}</div><div class="book-author">${escapeHtml(book.author)}${book.publisher ? ` · ${escapeHtml(book.publisher)}` : ''}</div></div><span class="status-badge ${status.class}">${status.label}</span></div><div class="book-meta-row">${genreLabel ? `<span class="genre-badge">${genreLabel}</span>` : ''}<span class="book-meta-item">${typeIcon}</span>${book.pages ? `<span class="book-meta-item">${lengthValue} ${lengthLabel}</span>` : ''}${book.rating ? `<span class="book-meta-item"><span class="book-rating">${stars.split('').map(s => `<span class="star ${s === '★' ? '' : 'empty'}">${s}</span>`).join('')}</span></span>` : ''}${days > 0 ? `<span class="book-meta-item">📅 ${days} дн.</span>` : ''}</div>${characters.length > 0 ? `<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;"><strong style="color:var(--accent-light);">Герои:</strong> ${characters.map(c => `${escapeHtml(c.name)} ${c.rating ? '★'.repeat(c.rating) : ''}`).join(', ')}</div>` : ''}${book.review ? `<div style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(book.review)}</div>` : ''}${quotes.length > 0 ? `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${quotes.map(q => `<span style="background:var(--bg-tertiary); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:var(--text-muted); font-style:italic;">${escapeHtml(q.trim().substring(0, 40))}${q.trim().length > 40 ? '...' : ''}</span>`).join('')}</div>` : ''}</div>${progressHtml}<div class="book-actions"><button onclick="editBook('${book.id}')">✏️ Редактировать</button><button onclick="deleteBook('${book.id}')">🗑️ Удалить</button></div></div></div>`;
+}
+
+function createTileView(book, index, coverHtml, status, genreLabel, typeIcon, lengthValue, lengthLabel) {
+    return `<div class="book-tile" style="animation-delay:${index * 0.05}s" onclick="event.stopPropagation(); editBook('${book.id}')"><span class="status-badge ${status.class}">${status.label}</span><div class="book-cover">${coverHtml}</div><div class="book-title">${escapeHtml(book.title)}</div><div class="book-author">${escapeHtml(book.author)}</div><div class="book-meta-row">${genreLabel ? `<span class="genre-badge">${genreLabel}</span>` : ''}<span class="book-meta-item">${typeIcon} ${lengthValue} ${lengthLabel}</span></div><div class="book-actions"><button onclick="event.stopPropagation(); editBook('${book.id}')">✏️</button><button onclick="event.stopPropagation(); deleteBook('${book.id}')">🗑️</button></div></div>`;
+}
+
+function createCompactView(book, index, coverHtml, status, genreLabel, typeIcon, lengthValue, lengthLabel) {
+    return `<div class="book-compact" style="animation-delay:${index * 0.03}s"><div class="book-cover">${coverHtml}</div><div class="book-info"><div class="book-title">${escapeHtml(book.title)}</div><div class="book-author">${escapeHtml(book.author)}</div><div class="book-meta-row">${genreLabel ? `<span class="genre-badge">${genreLabel}</span>` : ''}<span class="book-meta-item">${typeIcon} ${lengthValue} ${lengthLabel}</span></div></div><span class="status-badge ${status.class}">${status.label}</span><div class="book-actions"><button onclick="editBook('${book.id}')">✏️</button><button onclick="deleteBook('${book.id}')">🗑️</button></div></div>`;
+}<div class="book-info"><div><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div style="flex:1;"><div class="book-title">${escapeHtml(book.title)}</div><div class="book-author">${escapeHtml(book.author)}${book.publisher ? ` · ${escapeHtml(book.publisher)}` : ''}</div></div><span class="status-badge ${status.class}">${status.label}</span></div><div class="book-meta-row">${book.pages ? `<span class="book-meta-item">📄 ${book.pages} стр.</span>` : ''}${book.rating ? `<span class="book-meta-item"><span class="book-rating">${stars.split('').map(s => `<span class="star ${s === '★' ? '' : 'empty'}">${s}</span>`).join('')}</span></span>` : ''}${days > 0 ? `<span class="book-meta-item">📅 ${days} дн.</span>` : ''}</div>${characters.length > 0 ? `<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;"><strong style="color:var(--accent-light);">Герои:</strong> ${characters.map(c => `${escapeHtml(c.name)} ${c.rating ? '★'.repeat(c.rating) : ''}`).join(', ')}</div>` : ''}${book.review ? `<div style="margin-top:8px; font-size:0.85rem; color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(book.review)}</div>` : ''}${quotes.length > 0 ? `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">${quotes.map(q => `<span style="background:var(--bg-tertiary); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:var(--text-muted); font-style:italic;">${escapeHtml(q.trim().substring(0, 40))}${q.trim().length > 40 ? '...' : ''}</span>`).join('')}</div>` : ''}</div>${progressHtml}<div class="book-actions"><button onclick="editBook('${book.id}')">✏️ Редактировать</button><button onclick="deleteBook('${book.id}')">🗑️ Удалить</button></div></div></div>`;
 }
 
 function renderQuickStats(booksList) {
     const total = booksList.length;
-    const pages = booksList.reduce((s, b) => s + (b.pages || 0), 0);
+    const paperBooks = booksList.filter(b => !b.bookType || b.bookType === 'paper').length;
+    const audioBooks = booksList.filter(b => b.bookType === 'audio').length;
+    const ebookBooks = booksList.filter(b => b.bookType === 'ebook').length;
     const avgRating = booksList.filter(b => b.rating).length > 0 ? (booksList.filter(b => b.rating).reduce((s, b) => s + b.rating, 0) / booksList.filter(b => b.rating).length).toFixed(1) : '—';
-    document.getElementById('quickStats').innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-icon">📚</div></div><div class="stat-value">${total}</div><div class="stat-label">${total === 1 ? 'книга' : total < 5 ? 'книги' : 'книг'}</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">📄</div></div><div class="stat-value">${pages.toLocaleString()}</div><div class="stat-label">страниц</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">⭐</div></div><div class="stat-value">${avgRating}</div><div class="stat-label">средняя оценка</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">👤</div></div><div class="stat-value">${new Set(booksList.map(b => b.author)).size}</div><div class="stat-label">авторов</div></div>`;
+    document.getElementById('quickStats').innerHTML = `<div class="stat-card"><div class="stat-header"><div class="stat-icon">📚</div></div><div class="stat-value">${total}</div><div class="stat-label">${total === 1 ? 'книга' : total < 5 ? 'книги' : 'книг'}</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">📖</div></div><div class="stat-value">${paperBooks}</div><div class="stat-label">бумажных</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">🎧</div></div><div class="stat-value">${audioBooks}</div><div class="stat-label">аудио</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">📱</div></div><div class="stat-value">${ebookBooks}</div><div class="stat-label">электронных</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">⭐</div></div><div class="stat-value">${avgRating}</div><div class="stat-label">средняя оценка</div></div><div class="stat-card"><div class="stat-header"><div class="stat-icon">👤</div></div><div class="stat-value">${new Set(booksList.map(b => b.author)).size}</div><div class="stat-label">авторов</div></div>`;
 }
 
 function calculateDays(start, end) {
@@ -1397,6 +1731,8 @@ function openModal(bookId = null) {
             document.getElementById('author').value = book.author || '';
             document.getElementById('publisher').value = book.publisher || '';
             document.getElementById('isbn').value = book.isbn || '';
+            document.getElementById('genre').value = book.genre || '';
+            document.getElementById('bookType').value = book.bookType || 'paper';
             document.getElementById('pages').value = book.pages || '';
             document.getElementById('status').value = book.status || 'want';
             document.getElementById('startDate').value = book.startDate || '';
@@ -1406,6 +1742,7 @@ function openModal(bookId = null) {
             document.getElementById('rating').value = book.rating || 0;
             setStarRating(book.rating || 0);
             (book.characters || []).forEach(c => addCharacter(c.name, c.rating));
+            toggleBookType();
 
             // Restore cover
             if (book.cover) {
@@ -1491,7 +1828,9 @@ function saveBook(e) {
         publisher: document.getElementById('publisher').value.trim(),
         isbn: document.getElementById('isbn').value.trim() || null,
         cover: document.getElementById('coverData').value || null,
-        pages: parseInt(document.getElementById('pages').value) || null,
+        genre: document.getElementById('genre').value || null,
+        bookType: document.getElementById('bookType').value || 'paper',
+        pages: parseFloat(document.getElementById('pages').value) || null,
         status: document.getElementById('status').value,
         startDate: document.getElementById('startDate').value || null,
         endDate: document.getElementById('endDate').value || null,
